@@ -1,0 +1,31 @@
+[versions]
+gradle = "8.10"
+jackson = "2.17.2"
+kotlin = "2.0.20"
+kotlin-logging = "3.0.5"
+kotlinx = "1.8.1"
+mockito = "5.13.0"
+mockito-kotlin = "5.4.0"
+
+[libraries]
+jackson-module-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+kotlin-logging-jvm = { group = "io.github.microutils", name = "kotlin-logging-jvm", version.ref = "kotlin-logging" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx" }
+kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor", version.ref = "kotlinx" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
+
+[bundles]
+kotlin = [
+    "jackson-module-kotlin",
+    "kotlin-logging-jvm",
+    "kotlinx-coroutines-core",
+    "kotlinx-coroutines-reactor"
+]
+mockito = [
+    "mockito-core",
+    "mockito-kotlin"
+]
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
