@@ -1,3 +1,3 @@
-rootProject.name = "revolive"
+rootProject.name = "ydx-interview"
 
 include("core")
