@@ -8,9 +8,9 @@ import kotlin.random.Random
 
 object LoadBalancer {
 
-    val WARN_EXISTS = "Such instance already exists!"
-    val WARN_CAPACITY = "No more space!"
-    val STORAGE_CAPACITY = 10
+    const val WARN_EXISTS = "Such instance already exists!"
+    const val WARN_CAPACITY = "No more space!"
+    const val STORAGE_CAPACITY = 10
 
     private val INSTANCE_STORAGE = ConcurrentHashMap<String, Int>(STORAGE_CAPACITY)
 
