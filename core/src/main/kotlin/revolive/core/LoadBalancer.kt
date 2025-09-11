@@ -6,6 +6,15 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
+fun amountToReachLimit(l: BigDecimal, r: BigDecimal): BigDecimal {
+    return BigDecimal.ONE.subtract(l).max(BigDecimal.ZERO).min(r).setScale(2, RoundingMode.HALF_UP)
+}
+
+fun BigDecimal.amountToReachLimit(other: BigDecimal, limit: BigDecimal = BigDecimal.ONE): BigDecimal {
+    val result = limit.subtract(this).max(BigDecimal.ZERO).min(other)
+    return result.setScale(2, RoundingMode.HALF_UP)
+}
+
 object LoadBalancer {
 
     const val WARN_EXISTS = "Such instance already exists!"
@@ -33,17 +42,4 @@ object LoadBalancer {
         val rand = Random.nextInt(keys.size)
         return keys[rand]
     }
-}
-
-fun amountToReachLimit(l: BigDecimal, r: BigDecimal): BigDecimal {
-    return BigDecimal.ONE.subtract(l).max(BigDecimal.ZERO).min(r).setScale(2, RoundingMode.HALF_UP)
-}
-
-fun BigDecimal.amountToReachLimit(other: BigDecimal, limit: BigDecimal = BigDecimal.ONE): BigDecimal {
-    val result = limit.subtract(this).max(BigDecimal.ZERO).min(other)
-    return result.setScale(2, RoundingMode.HALF_UP)
-}
-
-fun main(args: Array<String>) {
-    println("Biba boba")
 }
