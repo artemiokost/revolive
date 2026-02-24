@@ -1,22 +1,21 @@
 package ydx.core
 
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertTrue
+import java.time.Instant
+import java.util.concurrent.locks.ReentrantLock
 
 class CoreTest {
 
     @Test
     fun test1() {
-        assertThrows<RuntimeException>("Exception") {
-            throw RuntimeException("Exception")
+        val impl = CallbackSchedulerImpl()
+        val calls = (1..10).map {
+            val result = CallbackResult()
+            val lock = ReentrantLock()
+            result.isDone = true
         }
-    }
-
-    @Test
-    fun test2() {
-        assertTrue {
-            true
+        calls.forEach {
+            impl.schedule(it, Instant.now())
         }
     }
 }
