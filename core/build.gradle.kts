@@ -1,8 +1,8 @@
-group = "revolive.core"
+group = "ydx.core"
 version = "0.0.1"
 
 plugins {
-    alias(libs.plugins.kotlin) apply true
+    java
 }
 
 repositories {
@@ -10,17 +10,14 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.bundles.kotlin)
-
-    testImplementation(kotlin("test"))
-    testImplementation(libs.bundles.mockito)
+    testImplementation(libs.bundles.junit)
+    testImplementation(libs.mockito.core)
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
     }
-    jvmToolchain(21)
 }
 
 tasks {
