@@ -102,46 +102,51 @@ public class CallbackSchedulerImpl implements CallbackScheduler {
      * 4. Если время не пришло — ждём ровно столько, сколько осталось (awaitNanos).
      *    При этом нас может разбудить signal() из schedule(), если пришла более ранняя задача.
      */
+    /**
+     * Достаёт из очереди задачу, готовую к выполнению. Если задач нет или время
+     * ближайшей ещё не пришло — ждёт под локом и возвращает null.
+     */
+    private ScheduledTask pollReady() throws InterruptedException {
+        lock.lock();
+        try {
+            ScheduledTask next = queue.peek();
+
+            if (next == null) {
+                // Очередь пуста — ждём новую задачу.
+                newTaskAdded.await();
+                return null;
+            }
+
+            long nanosToWait = Duration.between(Instant.now(), next.after()).toNanos();
+
+            if (nanosToWait > 0) {
+                // Время ещё не пришло — спим ровно столько, сколько нужно.
+                // awaitNanos может вернуться раньше из-за signal() — это нормально,
+                // мы просто пересчитаем на следующей итерации.
+                newTaskAdded.awaitNanos(nanosToWait);
+                return null;
+            }
+
+            // Время пришло — извлекаем задачу.
+            return queue.poll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private void run() {
         while (!stopped) {
-            lock.lock();
             try {
-                ScheduledTask next = queue.peek();
-
-                if (next == null) {
-                    // Очередь пуста — ждём новую задачу.
-                    newTaskAdded.await();
-                    continue;
-                }
-
-                long nanosToWait = Duration.between(Instant.now(), next.after()).toNanos();
-
-                if (nanosToWait > 0) {
-                    // Время ещё не пришло — спим ровно столько, сколько нужно.
-                    // awaitNanos может вернуться раньше из-за signal() — это нормально,
-                    // мы просто пересчитаем на следующей итерации.
-                    newTaskAdded.awaitNanos(nanosToWait);
-                } else {
-                    // Время пришло — извлекаем и выполняем задачу.
-                    ScheduledTask task = queue.poll();
-                    if (task != null) {
-                        // Выполняем вне лока, чтобы не блокировать schedule().
-                        lock.unlock();
-                        try {
-                            task.callback().run();
-                        } catch (Exception e) {
-                            // Ловим исключения, чтобы рабочий поток не упал.
-                            e.printStackTrace();
-                        } finally {
-                            lock.lock();
-                        }
-                    }
+                ScheduledTask task = pollReady();
+                if (task != null) {
+                    task.callback().run();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
-            } finally {
-                lock.unlock();
+            } catch (Exception e) {
+                // Ловим исключения из коллбэка, чтобы рабочий поток не упал.
+                e.printStackTrace();
             }
         }
     }

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,16 +33,16 @@ class CallbackSchedulerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         Instant scheduledAt = Instant.now();
-        Instant[] executedAt = new Instant[1];
+        AtomicReference<Instant> executedAt = new AtomicReference<>();
 
         scheduler.schedule(() -> {
-            executedAt[0] = Instant.now();
+            executedAt.set(Instant.now());
             latch.countDown();
         }, scheduledAt.plusMillis(500));
 
         assertTrue(latch.await(3, TimeUnit.SECONDS), "Коллбэк не был вызван в течение таймаута");
-        assertNotNull(executedAt[0]);
-        assertTrue(executedAt[0].isAfter(scheduledAt.plusMillis(400)),
+        assertNotNull(executedAt.get());
+        assertTrue(executedAt.get().isAfter(scheduledAt.plusMillis(400)),
                 "Коллбэк выполнился слишком рано");
     }
 
