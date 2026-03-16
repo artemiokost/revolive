@@ -6,7 +6,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Callback2SchedulerImpl implements AutoCloseable {
+public class CallbackScheduler2Impl implements AutoCloseable {
 
     private record ScheduledTask(Runnable callback, Instant after) implements Comparable<ScheduledTask> {
         @Override
@@ -24,7 +24,7 @@ public class Callback2SchedulerImpl implements AutoCloseable {
 
     private final Thread worker;
 
-    public Callback2SchedulerImpl() {
+    public CallbackScheduler2Impl() {
         this.worker = new Thread(this::run, "worker.thread");
         this.worker.setDaemon(true);
         this.worker.start();
