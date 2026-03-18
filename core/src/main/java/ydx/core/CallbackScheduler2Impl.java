@@ -48,6 +48,13 @@ public class CallbackScheduler2Impl implements AutoCloseable {
         }
     }
 
+//    @Override
+//    public void close() {
+//        stopped = true;
+//        worker.interrupt();
+//    }
+
+
     public void schedule(ScheduledTask task) {
         if (stopped) {
             throw new IllegalStateException("Планировщик остановлен");
