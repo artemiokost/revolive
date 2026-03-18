@@ -113,7 +113,40 @@ while (!stopped):
 
 ---
 
+## Варианты реализации (план для AI-ассистента)
+
+### Вариант 1 — synchronized + wait/notify (приоритетный)
+- **Очередь:** обычная `PriorityQueue` — доступ только под `synchronized`
+- **Ожидание:** `synchronized(lock)` + `lock.wait(millis)` вместо `Condition`
+- **Приватный монитор:** `private final Object lock` — защита от внешней блокировки
+- **Shutdown:** `volatile stopped` + `notify()`
+
+### Вариант 2 — ReentrantLock + PriorityBlockingQueue
+- **Очередь:** `PriorityBlockingQueue` — потокобезопасная, сортирует по `Instant`
+- **Ожидание:** `ReentrantLock` + `Condition.awaitNanos()` — спит ровно до ближайшей задачи
+- **Сигнализация:** `signal()` в `schedule()` и `close()` — будит поток при новой задаче или остановке
+- **Shutdown:** `volatile stopped` + `signal()` + `join()`
+
+### Вариант 3 — ScheduledExecutorService
+- **Всё делает стандартная библиотека:** `Executors.newSingleThreadScheduledExecutor()`
+- `schedule()` → `executor.schedule(callback, delay, MILLISECONDS)`
+- `close()` → `executor.shutdown()`
+- Упомянуть как продакшн-вариант, но на собесе обычно ждут ручную реализацию
+
+### Ключевые вопросы на собеседовании
+- **Почему не `Thread.sleep()`?** — задержка до 1 сек, пустая трата CPU
+- **Почему не `ConcurrentHashMap`?** — потеря задач с одинаковым `Instant`, нет порядка
+- **Зачем `signal()` / `notify()` в `close()`?** — разбудить поток из `await()`, иначе не увидит `stopped`
+- **Зачем `volatile`?** — видимость записи между потоками без лока
+- **Зачем `peek()` перед `poll()`?** — не извлекать задачу, пока время не пришло
+- **Зачем `private Object lock`?** — защита от внешнего `synchronized(scheduler)` и deadlock
+- **Альтернатива `signal()` в `close()`?** — `worker.interrupt()`, проще, но грубее
+
+---
+
 ## Сборка и запуск тестов
+## Без всяких интерфейсов и лишнего тк скорее всего будем писать в одном окне главное показать результат
+## Можешь предлагать реализацию сразу
 
 ```bash
 ./gradlew clean build
