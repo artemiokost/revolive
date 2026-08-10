@@ -1,4 +1,4 @@
-group = "ydx.core"
+group = "x.core"
 version = "0.0.1"
 
 plugins {

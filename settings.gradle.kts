@@ -1,3 +1,3 @@
-rootProject.name = "ydx-interview"
+rootProject.name = "x-interview"
 
 include("core")
