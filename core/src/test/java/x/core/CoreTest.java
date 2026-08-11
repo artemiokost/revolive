@@ -2,7 +2,7 @@ package x.core;
 
 import org.junit.jupiter.api.Test;
 
-class BlankTest {
+class CoreTest {
 
     @Test
     void test() {
